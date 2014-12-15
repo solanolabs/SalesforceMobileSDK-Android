@@ -8,15 +8,15 @@
 
 # Run build-wide and per-worker setup
 :hooks:
-  :pre_setup: './pre_setup.sh'
-  :worker_setup: './worker_setup.sh'
+  :pre_setup: 'config/pre_setup.sh'
+  :worker_setup: 'config/worker_setup.sh'
 # Time out hooks if they (each) run for more than 20 minutes
 :timeout_hook: 1200
 
 # Configure caching of Android SDK install
 :cache:
-  :key_paths:
-    - pre_setup.sh
+  #:key_paths:
+  #  - config/pre_setup.sh
   :save_paths:
     - HOME/android-sdk-linux
 
@@ -29,56 +29,57 @@
 
 # Each element in the tests list will be queued to run, and executed in parallel. Each element can be bash command line.
 :tests: 
-  - ". android-settings.sh && ./tools/sdk.sh -v -f -b ContactExplorer"
-  - ". android-settings.sh && ./tools/sdk.sh -v -f -b VFConnector"
-  - ". android-settings.sh && ./tools/sdk.sh -v -f -b SmartStoreExplorer"
-  - ". android-settings.sh && ./tools/sdk.sh -v -f -b AccountEditor"
-  - ". android-settings.sh && ./tools/sdk.sh -v -f -b HybridFileExplorer"
-  - ". android-settings.sh && ./tools/sdk.sh -v -f -b SmartSync -b SimpleSync"
-  - ". android-settings.sh && ./tools/sdk.sh -v -f -b SmartSync -b SmartSyncExplorer"
-  - ". android-settings.sh && ./tools/sdk.sh -v -f -b UserList"
-  - ". android-settings.sh && ./tools/sdk.sh -v -f -b NativeSqlAggregator"
-  - "./package-npm.sh"
+  - ". config/android-settings.sh && ./tools/sdk.sh -v -f -b ContactExplorer"
+  - ". config/android-settings.sh && ./tools/sdk.sh -v -f -b VFConnector"
+  - ". config/android-settings.sh && ./gradlew :native:SampleApps:SmartSyncExplorer:assembleDebug"
+  - ". config/android-settings.sh && ./tools/sdk.sh -v -f -b AccountEditor"
+  - ". config/android-settings.sh && ./tools/sdk.sh -v -f -b HybridFileExplorer"
+  - ". config/android-settings.sh && ./gradlew :libs:SmartSync:assembleDebug"
+  - ". config/android-settings.sh && ./gradlew :libs:SmartStore:assembleDebug"
+  - ". config/android-settings.sh && ./tools/sdk.sh -v -f -b UserList"
+  - ". config/android-settings.sh && ./gradlew :native:SampleApps:NativeSqlAggregator:assembleDebug"
+  - ". config/android-settings.sh && ./gradlew :native:TemplateApp:assembleDebug"
+  - "config/package-npm.sh"
 
   # To capture JUnit XML output from a command line, set its type to "junit"
   # and indicate where Solano CI can find the XML files
   - type: junit
-    command: "./with-emulator.sh ./tools/sdk.sh -v -f -b SalesforceSDKTest -t SalesforceSDKTest"
+    command: "config/with-emulator.sh ./tools/sdk.sh -v -f -b SalesforceSDK"
     output: exit-status
     invocation: single
     mode: basic
     report_files:
     - "**/junit-reports/**.xml"
   - type: junit
-    command: "./with-emulator.sh ./gradlew :native:SampleApps:RestExplorer:connectedAndroidTest"
+    command: "config/with-emulator.sh ./tools/sdk.sh -v -f -b RestExplorer"
     output: exit-status
     invocation: single
     mode: basic
     report_files:
     - "**/TEST**.xml" # Note that gradle leaves XML output in a different location from ant
   - type: junit
-    command: "./with-emulator.sh ./tools/sdk.sh -v -f -b TemplateApp -b TemplateAppTest -t TemplateAppTest"
+    command: "config/with-emulator.sh ./tools/sdk.sh -v -f -t TemplateAppTest"
     output: exit-status
     invocation: single
     mode: basic
     report_files:
     - "**/junit-reports/**.xml"
   - type: junit
-    command: "./with-emulator.sh ./tools/sdk.sh -v -f b SmartStoreTest -t SmartStoreTest"
+    command: "config/with-emulator.sh ./tools/sdk.sh -v -f -t SmartStoreTest"
     output: exit-status
     invocation: single
     mode: basic
     report_files:
     - "**/junit-reports/**.xml"
   - type: junit
-    command: "./with-emulator.sh ./tools/sdk.sh -v -f -b SmartSync -b SmartSyncTest -t SmartSyncTest"
+    command: "config/with-emulator.sh ./gradlew ./tools/sdk.sh -v -f -t SmartSyncTest"
     output: exit-status
     invocation: single
     mode: basic
     report_files:
     - "**/junit-reports/**.xml"
   - type: junit
-    command: "./with-emulator.sh ./tools/sdk.sh -v -f -b ForcePluginsTest -t ForcePluginsTest"
+    command: "config/with-emulator.sh ./tools/sdk.sh -v -f -t ForcePluginsTest"
     output: exit-status
     invocation: single
     mode: basic
